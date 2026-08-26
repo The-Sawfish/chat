@@ -3,17 +3,19 @@
    Palette: deep ink sidebar, warm paper canvas, single signal-orange
    accent used only for "you" bubbles and live state (unread/online).
    Type: a rounded grotesque for UI chrome, a plain workhorse for body copy.
-   ============================================================ */
+============================================================ */
 :root {
   --ink-950: #14151a;
   --ink-900: #1b1c22;
   --ink-800: #24252d;
   --ink-700: #33343e;
   --ink-500: #6b6c78;
+
   --paper-100: #faf9f6;
   --paper-200: #f1efe9;
   --paper-300: #e6e3da;
   --line: #e2dfd4;
+
   --signal: #ff5a36;
   --signal-dim: #ffe4da;
   --ok: #2bb673;
@@ -28,13 +30,18 @@
 }
 
 * { box-sizing: border-box; }
+
 html, body { height: 100%; }
+
 body {
   margin: 0;
   font-family: var(--font-body);
   background: var(--paper-200);
   color: var(--ink-950);
   -webkit-font-smoothing: antialiased;
+  /* Keep the page itself fixed to the viewport — inner panes handle
+     their own scrolling so a long chat never makes the page taller. */
+  overflow: hidden;
 }
 
 button {
@@ -44,9 +51,11 @@ button {
   background: none;
   color: inherit;
 }
+
 input, textarea {
   font-family: var(--font-body);
 }
+
 a { color: inherit; }
 
 /* ---------------- Auth pages ---------------- */
@@ -59,6 +68,7 @@ a { color: inherit; }
     radial-gradient(1200px 600px at 15% -10%, #262832 0%, transparent 60%),
     var(--ink-950);
 }
+
 .auth-card {
   width: 100%;
   max-width: 400px;
@@ -67,12 +77,14 @@ a { color: inherit; }
   padding: 40px 34px;
   box-shadow: 0 30px 60px rgba(0,0,0,0.35);
 }
+
 .auth-brand {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 28px;
 }
+
 .auth-brand .mark {
   width: 34px; height: 34px;
   border-radius: 10px;
@@ -80,26 +92,31 @@ a { color: inherit; }
   display: grid; place-items: center;
   color: white; font-family: var(--font-ui); font-weight: 700;
 }
+
 .auth-brand span {
   font-family: var(--font-ui);
   font-weight: 700;
   font-size: 20px;
   letter-spacing: -0.02em;
 }
+
 .auth-card h1 {
   font-family: var(--font-ui);
   font-size: 22px;
   margin: 0 0 6px;
   letter-spacing: -0.01em;
 }
+
 .auth-card p.sub {
   margin: 0 0 26px;
   color: var(--ink-500);
   font-size: 14px;
 }
+
 .field {
   margin-bottom: 16px;
 }
+
 .field label {
   display: block;
   font-family: var(--font-ui);
@@ -110,6 +127,7 @@ a { color: inherit; }
   color: var(--ink-500);
   margin-bottom: 7px;
 }
+
 .field input {
   width: 100%;
   padding: 12px 14px;
@@ -120,7 +138,9 @@ a { color: inherit; }
   outline: none;
   transition: border-color .15s ease;
 }
+
 .field input:focus { border-color: var(--signal); }
+
 .btn-primary {
   width: 100%;
   padding: 13px 14px;
@@ -132,9 +152,11 @@ a { color: inherit; }
   margin-top: 6px;
   transition: transform .1s ease, background .15s ease;
 }
+
 .btn-primary:hover { background: var(--signal); }
 .btn-primary:active { transform: scale(0.98); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .google-btn {
   display: flex;
   align-items: center;
@@ -143,14 +165,18 @@ a { color: inherit; }
   color: #3c4043;
   border: 1.5px solid var(--line);
 }
+
 .google-btn:hover { background: #f8f8f8; }
+
 .auth-switch {
   margin-top: 22px;
   text-align: center;
   font-size: 14px;
   color: var(--ink-500);
 }
+
 .auth-switch a { color: var(--signal); font-weight: 600; text-decoration: none; }
+
 .form-error {
   background: #fff1ee;
   color: #b3311c;
@@ -161,7 +187,9 @@ a { color: inherit; }
   margin-bottom: 16px;
   display: none;
 }
+
 .form-error.show { display: block; }
+
 .number-reveal {
   margin-top: 18px;
   padding: 14px;
@@ -171,7 +199,9 @@ a { color: inherit; }
   text-align: center;
   display: none;
 }
+
 .number-reveal.show { display: block; }
+
 .number-reveal .big {
   font-family: var(--font-ui);
   font-size: 28px;
@@ -179,6 +209,7 @@ a { color: inherit; }
   color: var(--signal);
   font-weight: 700;
 }
+
 .number-reveal .cap {
   font-size: 11px;
   text-transform: uppercase;
@@ -191,7 +222,12 @@ a { color: inherit; }
   height: 100%;
   display: grid;
   grid-template-columns: 84px 300px 1fr;
+  /* Without this, a grid row with implicit auto-sizing will grow to fit
+     tall content (e.g. a long chat) instead of staying pinned to the
+     viewport height, which is what let the page grow taller. */
+  min-height: 0;
 }
+
 @media (max-width: 860px) {
   .app { grid-template-columns: 64px 1fr; }
   .chat-pane { display: none; }
@@ -210,6 +246,7 @@ a { color: inherit; }
   padding: 18px 0;
   gap: 8px;
 }
+
 .rail .mark {
   width: 38px; height: 38px;
   border-radius: 11px;
@@ -220,6 +257,7 @@ a { color: inherit; }
   margin-bottom: 18px;
   font-size: 15px;
 }
+
 .rail-btn {
   width: 44px; height: 44px;
   border-radius: 12px;
@@ -227,10 +265,12 @@ a { color: inherit; }
   color: var(--ink-500);
   transition: background .15s ease, color .15s ease;
 }
+
 .rail-btn:hover { background: var(--ink-800); color: var(--paper-100); }
 .rail-btn.active { background: var(--ink-800); color: var(--signal); }
 .rail-btn svg { width: 20px; height: 20px; }
 .rail-spacer { flex: 1; }
+
 .rail-avatar {
   width: 40px; height: 40px;
   border-radius: 50%;
@@ -248,10 +288,15 @@ a { color: inherit; }
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* Same reasoning as .chat-pane below: let .scroll-list own the scroll
+     instead of stretching this pane past the viewport. */
+  min-height: 0;
 }
+
 .list-header {
   padding: 18px 18px 12px;
 }
+
 .list-header h2 {
   font-family: var(--font-ui);
   font-size: 19px;
@@ -261,6 +306,7 @@ a { color: inherit; }
   align-items: center;
   justify-content: space-between;
 }
+
 .list-header .my-number {
   font-family: var(--font-ui);
   font-size: 11px;
@@ -271,9 +317,11 @@ a { color: inherit; }
   border-radius: 20px;
   letter-spacing: 0.06em;
 }
+
 .search-box {
   position: relative;
 }
+
 .search-box input {
   width: 100%;
   padding: 9px 12px;
@@ -283,20 +331,24 @@ a { color: inherit; }
   font-size: 13.5px;
   outline: none;
 }
+
 .icon-btn {
   width: 30px; height: 30px;
   border-radius: 8px;
   display: grid; place-items: center;
   color: var(--ink-500);
 }
+
 .icon-btn:hover { background: var(--paper-300); color: var(--ink-950); }
 .icon-btn svg { width: 16px; height: 16px; }
 
 .scroll-list {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 4px 8px 12px;
 }
+
 .chat-row {
   display: flex;
   align-items: center;
@@ -306,8 +358,10 @@ a { color: inherit; }
   cursor: pointer;
   transition: background .12s ease;
 }
+
 .chat-row:hover { background: var(--paper-200); }
 .chat-row.active { background: var(--paper-300); }
+
 .avatar {
   width: 44px; height: 44px;
   border-radius: 50%;
@@ -320,7 +374,9 @@ a { color: inherit; }
   flex-shrink: 0;
   position: relative;
 }
+
 .avatar.group { background: linear-gradient(135deg, var(--signal), #ff8a5c); }
+
 .presence-dot {
   position: absolute;
   bottom: -1px; right: -1px;
@@ -330,22 +386,28 @@ a { color: inherit; }
   border: 2px solid var(--paper-100);
   display: none;
 }
+
 .presence-dot.on { display: block; }
+
 .chat-row-body { min-width: 0; flex: 1; }
 .chat-row-top { display: flex; justify-content: space-between; gap: 8px; }
+
 .chat-row-name {
   font-family: var(--font-ui);
   font-weight: 600;
   font-size: 14.5px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
 .chat-row-time { font-size: 11px; color: var(--ink-500); flex-shrink: 0; }
+
 .chat-row-preview {
   font-size: 13px;
   color: var(--ink-500);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   margin-top: 2px;
 }
+
 .unread-badge {
   background: var(--signal);
   color: white;
@@ -357,6 +419,7 @@ a { color: inherit; }
   padding: 0 5px;
   margin-left: 6px;
 }
+
 .empty-hint {
   text-align: center;
   color: var(--ink-500);
@@ -374,6 +437,7 @@ a { color: inherit; }
   border-radius: 8px;
   flex-shrink: 0;
 }
+
 .contact-row-action:hover { background: var(--signal-dim); }
 
 /* chat pane */
@@ -382,12 +446,19 @@ a { color: inherit; }
   flex-direction: column;
   min-width: 0;
   background: var(--paper-200);
+  /* Pin the pane to the grid row's height and let .messages-scroll
+     be the only thing that scrolls, so the composer never gets
+     pushed down and the page never grows. */
+  min-height: 0;
 }
+
 .chat-pane.empty { align-items: center; justify-content: center; }
+
 .chat-pane.empty .empty-state {
   text-align: center;
   color: var(--ink-500);
 }
+
 .chat-pane.empty .empty-state .mark {
   width: 56px; height: 56px;
   border-radius: 16px;
@@ -395,6 +466,7 @@ a { color: inherit; }
   display: grid; place-items: center;
   margin: 0 auto 16px;
 }
+
 .chat-header {
   display: flex;
   align-items: center;
@@ -402,11 +474,15 @@ a { color: inherit; }
   padding: 14px 20px;
   background: var(--paper-100);
   border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
 }
+
 .chat-header .back-btn { display: none; }
+
 @media (max-width: 860px) {
   .chat-header .back-btn { display: grid; }
 }
+
 .chat-header-name { font-family: var(--font-ui); font-weight: 700; font-size: 15.5px; }
 .chat-header-sub { font-size: 12px; color: var(--ink-500); }
 .chat-header-spacer { flex: 1; }
@@ -414,22 +490,27 @@ a { color: inherit; }
 .messages-scroll {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
+
 .msg-row {
   display: flex;
   margin-top: 8px;
 }
+
 .msg-row.mine { justify-content: flex-end; }
+
 .msg-group-label {
   align-self: center;
   font-size: 11px;
   color: var(--ink-500);
   margin: 14px 0 6px;
 }
+
 .bubble {
   max-width: 66%;
   padding: 10px 14px;
@@ -439,23 +520,27 @@ a { color: inherit; }
   word-wrap: break-word;
   white-space: pre-wrap;
 }
+
 .msg-row:not(.mine) .bubble {
   background: var(--white);
   color: var(--ink-950);
   border-bottom-left-radius: 5px;
   box-shadow: 0 1px 1px rgba(0,0,0,0.03);
 }
+
 .msg-row.mine .bubble {
   background: var(--signal);
   color: white;
   border-bottom-right-radius: 5px;
 }
+
 .msg-sender {
   font-size: 11px;
   font-weight: 700;
   color: var(--signal);
   margin-bottom: 2px;
 }
+
 .msg-time {
   font-size: 10px;
   opacity: 0.65;
@@ -470,7 +555,11 @@ a { color: inherit; }
   padding: 14px 20px 18px;
   background: var(--paper-100);
   border-top: 1px solid var(--line);
+  /* Never let a tall textarea shrink the messages area or grow the pane —
+     the composer keeps its own height and the textarea scrolls internally. */
+  flex-shrink: 0;
 }
+
 .composer textarea {
   flex: 1;
   resize: none;
@@ -479,10 +568,13 @@ a { color: inherit; }
   padding: 11px 16px;
   font-size: 14.5px;
   max-height: 120px;
+  overflow-y: auto;
   outline: none;
   background: var(--white);
 }
+
 .composer textarea:focus { border-color: var(--signal); }
+
 .send-btn {
   width: 42px; height: 42px;
   border-radius: 50%;
@@ -492,6 +584,7 @@ a { color: inherit; }
   flex-shrink: 0;
   transition: background .15s ease, transform .1s ease;
 }
+
 .send-btn:hover { background: var(--signal); }
 .send-btn:active { transform: scale(0.94); }
 .send-btn svg { width: 18px; height: 18px; }
@@ -505,19 +598,24 @@ a { color: inherit; }
   z-index: 50;
   padding: 20px;
 }
+
 .modal-backdrop.show { display: flex; }
+
 .modal {
   background: var(--paper-100);
   border-radius: var(--radius-lg);
   width: 100%; max-width: 380px;
   padding: 26px;
 }
+
 .modal h3 {
   font-family: var(--font-ui);
   margin: 0 0 4px;
   font-size: 18px;
 }
+
 .modal p.sub { margin: 0 0 18px; color: var(--ink-500); font-size: 13px; }
+
 .pick-list {
   max-height: 220px;
   overflow-y: auto;
@@ -526,13 +624,17 @@ a { color: inherit; }
   flex-direction: column;
   gap: 4px;
 }
+
 .pick-row {
   display: flex; align-items: center; gap: 10px;
   padding: 8px;
   border-radius: 10px;
 }
+
 .pick-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--signal); }
+
 .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+
 .btn-secondary {
   flex: 1;
   padding: 11px;
@@ -541,6 +643,7 @@ a { color: inherit; }
   font-weight: 600;
   font-size: 14px;
 }
+
 .modal .btn-primary { flex: 1; margin-top: 0; }
 
 /* toast */
@@ -558,6 +661,7 @@ a { color: inherit; }
   transition: all .25s ease;
   z-index: 100;
 }
+
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
