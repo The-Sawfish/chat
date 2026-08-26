@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign up — Signal Line</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="mark">#</div>
+        <span>Signal Line</span>
+      </div>
+      <h1>Create your account</h1>
+      <p class="sub">You'll get a private 5-digit number others can use to find you.</p>
+
+      <div class="form-error" id="errorBox"></div>
+
+      <form id="signupForm">
+        <div class="field">
+          <label for="name">Display name</label>
+          <input type="text" id="name" autocomplete="name" required maxlength="40" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" autocomplete="new-password" required minlength="6" />
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">Create account</button>
+      </form>
+
+      <div class="number-reveal" id="numberReveal">
+        <div class="cap">Your number</div>
+        <div class="big" id="numberValue">•••••</div>
+        <div class="cap" style="margin-top:6px;">Share it so people can add you</div>
+      </div>
+
+      <div class="auth-switch">
+        Already have an account? <a href="login.html">Log in</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { signUp, friendlyAuthError, watchAuth } from "./js/auth.js";
+
+    watchAuth((user) => { if (user) window.location.href = "index.html"; });
+
+    const form = document.getElementById("signupForm");
+    const errorBox = document.getElementById("errorBox");
+    const submitBtn = document.getElementById("submitBtn");
+    const numberReveal = document.getElementById("numberReveal");
+    const numberValue = document.getElementById("numberValue");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorBox.classList.remove("show");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating account…";
+      try {
+        const { number } = await signUp(
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value,
+          document.getElementById("name").value.trim()
+        );
+        numberValue.textContent = number;
+        numberReveal.classList.add("show");
+        form.style.display = "none";
+        setTimeout(() => { window.location.href = "index.html"; }, 2200);
+      } catch (err) {
+        errorBox.textContent = friendlyAuthError(err);
+        errorBox.classList.add("show");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create account";
+      }
+    });
+  </script>
+</body>
+</html>
