@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Log in — Signal Line</title>
+<title>Sign in — Signal Line</title>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,55 +15,58 @@
         <div class="mark">#</div>
         <span>Signal Line</span>
       </div>
-      <h1>Welcome back</h1>
-      <p class="sub">Log in to see your chats.</p>
+      <h1>Welcome</h1>
+      <p class="sub">Sign in with Google to see your chats. First time here? The same button creates your account and gives you a private 5-digit number.</p>
 
       <div class="form-error" id="errorBox"></div>
 
-      <form id="loginForm">
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" autocomplete="email" required />
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="password" id="password" autocomplete="current-password" required />
-        </div>
-        <button type="submit" class="btn-primary" id="submitBtn">Log in</button>
-      </form>
+      <button class="btn-primary google-btn" id="googleBtn">
+        <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right:9px; vertical-align:-4px;">
+          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.81.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.03l2.99-2.33z"/>
+          <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
+        </svg>
+        Sign in with Google
+      </button>
 
-      <div class="auth-switch">
-        Don't have an account? <a href="signup.html">Sign up</a>
-      </div>
+      <p style="margin-top:18px; font-size:12px; color:var(--ink-500); text-align:center;">
+        By continuing you agree to sign in with your Google account.
+      </p>
     </div>
   </div>
 
   <script type="module">
-    import { logIn, friendlyAuthError, watchAuth } from "./js/auth.js";
+    import { signInWithGoogle, completeRedirectSignIn, friendlyAuthError, watchAuth } from "./js/auth.js";
+
+    const errorBox = document.getElementById("errorBox");
+    const googleBtn = document.getElementById("googleBtn");
 
     // If already logged in, skip straight to the app.
     watchAuth((user) => { if (user) window.location.href = "index.html"; });
 
-    const form = document.getElementById("loginForm");
-    const errorBox = document.getElementById("errorBox");
-    const submitBtn = document.getElementById("submitBtn");
+    // Finish sign-in if we just got redirected back here from Google
+    // (the popup-blocked fallback path).
+    completeRedirectSignIn()
+      .then((user) => { if (user) window.location.href = "index.html"; })
+      .catch((err) => {
+        errorBox.textContent = friendlyAuthError(err);
+        errorBox.classList.add("show");
+      });
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    googleBtn.addEventListener("click", async () => {
       errorBox.classList.remove("show");
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Logging in…";
+      googleBtn.disabled = true;
+      googleBtn.textContent = "Signing in…";
       try {
-        await logIn(
-          document.getElementById("email").value.trim(),
-          document.getElementById("password").value
-        );
-        window.location.href = "index.html";
+        const user = await signInWithGoogle();
+        if (user) window.location.href = "index.html";
+        // if user is null, we've been redirected away — nothing more to do here
       } catch (err) {
         errorBox.textContent = friendlyAuthError(err);
         errorBox.classList.add("show");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Log in";
+        googleBtn.disabled = false;
+        googleBtn.innerHTML = 'Sign in with Google';
       }
     });
   </script>
