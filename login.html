@@ -42,9 +42,6 @@
     const errorBox = document.getElementById("errorBox");
     const googleBtn = document.getElementById("googleBtn");
 
-    // If already logged in, skip straight to the app.
-    watchAuth((user) => { if (user) window.location.href = "index.html"; });
-
     // Finish sign-in if we just got redirected back here from Google
     // (the popup-blocked fallback path).
     completeRedirectSignIn()
