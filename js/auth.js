@@ -1,23 +1,26 @@
 import { auth, db } from "./firebase-init.js";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
-  updateProfile,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import {
   ref,
-  runTransaction,
+  get,
   set,
+  runTransaction,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-// Generates a random 5-digit string ("00000"-"99999" excluding leading-zero
-// awkwardness is fine, we just want a fixed-width 5-digit id) and atomically
-// reserves it in /usernames so two people can never collide. Retries on
-// collision. This "number" is never written to localStorage/sessionStorage —
-// it lives only in the Realtime Database and is read fresh each session.
+const provider = new GoogleAuthProvider();
+
+// Generates a random 5-digit string and atomically reserves it in
+// /usernames so two people can never collide. Retries on collision.
+// This "number" is never written to localStorage/sessionStorage — it
+// lives only in the Realtime Database and is read fresh each session.
 async function generateAndReserveNumber(uid) {
   const MAX_TRIES = 25;
   for (let i = 0; i < MAX_TRIES; i++) {
@@ -32,27 +35,50 @@ async function generateAndReserveNumber(uid) {
   throw new Error("Could not allocate a unique number, please try again.");
 }
 
-export async function signUp(email, password, displayName) {
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  const uid = cred.user.uid;
-  await updateProfile(cred.user, { displayName });
+// Creates the users/{uid} profile (with a freshly reserved 5-digit number)
+// the first time someone signs in with Google. No-op on later logins.
+async function ensureProfile(user) {
+  const profileRef = ref(db, `users/${user.uid}`);
+  const snap = await get(profileRef);
+  if (snap.exists()) return snap.val();
 
-  const number = await generateAndReserveNumber(uid);
-
-  await set(ref(db, `users/${uid}`), {
-    displayName,
-    email,
+  const number = await generateAndReserveNumber(user.uid);
+  const profile = {
+    displayName: user.displayName || "New user",
+    email: user.email || "",
     number,
     online: true,
     lastSeen: serverTimestamp(),
     createdAt: serverTimestamp(),
-  });
-
-  return { uid, number };
+  };
+  await set(profileRef, profile);
+  return profile;
 }
 
-export function logIn(email, password) {
-  return signInWithEmailAndPassword(auth, email, password);
+export async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await ensureProfile(result.user);
+    return result.user;
+  } catch (err) {
+    // Some browsers (or ad/popup blockers) refuse the popup — fall back
+    // to a full-page redirect flow instead of just failing.
+    if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
+      await signInWithRedirect(auth, provider);
+      return null; // page will navigate away; caller doesn't need a return value
+    }
+    throw err;
+  }
+}
+
+// Call this once on page load of login.html to finish a redirect-based
+// sign-in (the fallback path above). Resolves to null if the page wasn't
+// loaded as a result of a redirect.
+export async function completeRedirectSignIn() {
+  const result = await getRedirectResult(auth);
+  if (!result) return null;
+  await ensureProfile(result.user);
+  return result.user;
 }
 
 export function logOut() {
@@ -66,13 +92,11 @@ export function watchAuth(callback) {
 export function friendlyAuthError(err) {
   const code = err?.code || "";
   const map = {
-    "auth/email-already-in-use": "That email is already registered — try logging in instead.",
-    "auth/invalid-email": "That email address doesn't look right.",
-    "auth/weak-password": "Password should be at least 6 characters.",
-    "auth/user-not-found": "No account found with that email.",
-    "auth/wrong-password": "Incorrect password.",
-    "auth/invalid-credential": "Incorrect email or password.",
-    "auth/too-many-requests": "Too many attempts — please wait a moment and try again.",
+    "auth/popup-closed-by-user": "Sign-in was cancelled.",
+    "auth/cancelled-popup-request": "Sign-in was cancelled.",
+    "auth/unauthorized-domain": "This site's domain isn't authorized for sign-in yet — add it under Authentication → Settings → Authorized domains in the Firebase console.",
+    "auth/network-request-failed": "Network error — check your connection and try again.",
+    "auth/internal-error": "Google sign-in isn't enabled on this project yet — enable it under Authentication → Sign-in method.",
   };
   return map[code] || err?.message || "Something went wrong. Please try again.";
 }
