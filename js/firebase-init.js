@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 const isPlaceholder = Object.values(firebaseConfig).some(
@@ -25,3 +26,10 @@ if (isPlaceholder) {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
+
+// Analytics is optional and only works in supporting browser contexts
+// (e.g. not in some in-app webviews) — guarded so it never breaks auth/chat.
+export let analytics = null;
+isSupported()
+  .then((ok) => { if (ok) analytics = getAnalytics(app); })
+  .catch(() => { /* analytics unsupported in this environment, ignore */ });
