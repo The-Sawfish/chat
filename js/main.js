@@ -25,30 +25,41 @@ let lastSeenAt = {}; // chatId -> timestamp of last time we viewed it (in-memory
 // ---------------------------------------------------------------
 // Bootstrapping
 // ---------------------------------------------------------------
+
 watchAuth(async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
   const snap = await get(ref(db, `users/${user.uid}`));
-  if (!snap.exists()) { window.location.href = "login.html"; return; }
+
+  if (!snap.exists()) {
+    window.location.href = "login.html";
+    return;
+  }
+
   const profile = snap.val();
-  me = { uid: user.uid, displayName: profile.displayName, number: profile.number, email: profile.email };
-  document.getElementById("myAvatar").textContent = initials(me.displayName);
-  document.getElementById("myNumberBadge").textContent = "#" + me.number;
+
+  me = {
+    uid: user.uid,
+    displayName: profile.displayName,
+    number: profile.number,
+    email: profile.email
+  };
+
+  document.getElementById("myAvatar").textContent =
+    initials(me.displayName);
+
+  document.getElementById("myNumberBadge").textContent =
+    "#" + me.number;
+
   setupPresence();
   listenToContacts();
   listenToUserChats();
 
-  // Real push notifications — delivered by the Cloud Function even when
-  // this tab is backgrounded or the browser/app is fully closed. See
-  // js/notifications.js and functions/index.js.
-  setupPushNotifications(me, {
-    isChatActive: (chatId) => currentChatId === chatId,
-    onOpenChat: (chatId) => {
-      const meta = chatsCache[chatId];
-      if (!meta) return;
-      navChats.click();
-      openChat(chatId, meta);
-    },
-  });
+  // OneSignal push notifications
+  setupPush();
 });
 
 function setupPresence() {
